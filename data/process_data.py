@@ -23,7 +23,10 @@ def clean_data(df):
 
     # Convert category values to numbers 0 or 1
     for column in categories:
-        categories[column] = categories[column].str[-1:].astype(int) 
+        categories[column] = categories[column].astype(str).str[-1:].astype(int) 
+
+    # Replace all values > 1 with 1
+    categories.where(categories <= 1, 1, inplace=True)
     
     # Replace categories column in df with new category columns
     df.drop(columns=['categories'], inplace=True)
