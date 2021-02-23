@@ -25,7 +25,11 @@ def clean_data(df):
     for column in categories:
         categories[column] = categories[column].astype(str).str[-1:].astype(int) 
 
-    # Replace all values > 1 with 1
+        # Drop column if all values are equal to 0
+        if categories[column].sum == 0:
+            categories.drop(columns=[column], inplace=True)
+
+    # Replace all values > 1 with 0
     categories.where(categories <= 1, 0, inplace=True)
     
     # Replace categories column in df with new category columns
