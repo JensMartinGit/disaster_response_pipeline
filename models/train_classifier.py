@@ -1,8 +1,28 @@
 import sys
+import pandas as pd
+from sqlalchemy import engine
 
 
 def load_data(database_filepath):
-    pass
+	'''Load the clean data from sqlite database and assign X, y and category_names
+	
+	Arguments:
+		database_filepath: filepath to sqlite database
+	Returns:
+		X: pandas.Series, messages to classify
+		y: pandas.DataFrame, classification into categories as one-hot encoding
+		category_names: list, category names
+	'''
+    # Load data from sqlite database into DataFrame
+    engine = create_engine(f'sqlite:///{database_filepath}')
+    df = pd.read_sql('SELECT * FROM messages', engine)
+    
+    # Assign X, y and category names
+    X = df.messages
+    y = df.iloc[:,4:]
+    category_names = list(y.columns)
+    
+    return X, y, category_names
 
 
 def tokenize(text):
