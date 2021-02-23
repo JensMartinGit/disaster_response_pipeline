@@ -6,6 +6,14 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nlt.download('wordnet')
 from nltk.tokenize import word_tokenize
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import classification_report
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 
 
 def load_data(database_filepath):
@@ -29,6 +37,7 @@ def load_data(database_filepath):
     category_names = list(y.columns)
     
     return X, y, category_names
+
 
 
 def tokenize(text):
@@ -58,7 +67,27 @@ def tokenize(text):
 
 
 def build_model():
-    pass
+	'''Creates an ML pipeline using MultiOutputClassifier, AdaBoostClassifier with DecisionTreeClassifier
+	as base estimator, and GridSerach CV'''
+
+	# Build ML pipeline
+    pipeline = Pipeline([
+	    ('vect', CountVectorizer(tokenizer=tokenize)),
+	    ('tfidf', TfidfTransformer()),
+	    ('clf', MultiOutputClassifier(AdaBoostClassifier(base_estimator=DecisionTreeClassifier())))
+	])
+
+	# Define parameters for GridSearchCV
+	parameters = {
+		'tfidf__norm' : ['l1', 'l2'],
+    	'clf__estimator__base_estimator__criterion' : ['gini', 'entropy']
+	}
+
+	# Create GridSearchCV object
+	cv = GridSearchCV(pipeline, param_grid = parameters)
+
+	return cv
+
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
