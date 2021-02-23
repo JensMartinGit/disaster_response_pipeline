@@ -1,11 +1,12 @@
 import sys, re
 import pandas as pd
-from sqlalchemy import engine
+from sqlalchemy import create_engine
 import nltk
 nltk.download('punkt')
 nltk.download('stopwords')
-nlt.download('wordnet')
+nltk.download('wordnet')
 from nltk.tokenize import word_tokenize
+from nltk.stem.wordnet import WordNetLemmatizer
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
@@ -17,22 +18,23 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def load_data(database_filepath):
-	'''Load the clean data from sqlite database and assign X, y and category_names
-	
-	Arguments:
-		database_filepath: filepath to sqlite database
-	Returns:
-		X: pandas.Series, messages to classify
-		y: pandas.DataFrame, classification into categories as one-hot encoding
-		category_names: list, category names
-	'''
+    '''Load the clean data from sqlite database and assign X, y and category_names
+
+    Arguments:
+        database_filepath: filepath to sqlite database
+    Returns:
+        X: pandas.Series, messages to classify
+        y: pandas.DataFrame, classification into categories as one-hot encoding
+        category_names: list, category names
+    '''
 
     # Load data from sqlite database into DataFrame
+
     engine = create_engine(f'sqlite:///{database_filepath}')
+
     df = pd.read_sql('SELECT * FROM messages', engine)
-    
     # Assign X, y and category names
-    X = df.messages
+    X = df.message
     y = df.iloc[:,4:]
     category_names = list(y.columns)
     
@@ -47,9 +49,9 @@ def tokenize(text):
     and returns a list of tokens.
 
     Arguments:
-    	text: string, input text
+        text: string, input text
     Returns:
-    	token_list: list, tokenized words
+        token_list: list, tokenized words
     '''
 
     # Replace URLs
@@ -67,26 +69,26 @@ def tokenize(text):
 
 
 def build_model():
-	'''Create an ML pipeline using MultiOutputClassifier, AdaBoostClassifier with DecisionTreeClassifier
-	as base estimator, and GridSerach CV'''
+    '''Create an ML pipeline using MultiOutputClassifier, AdaBoostClassifier with DecisionTreeClassifier
+    as base estimator, and GridSerach CV'''
 
-	# Build ML pipeline
+    # Build ML pipeline
     pipeline = Pipeline([
-	    ('vect', CountVectorizer(tokenizer=tokenize)),
-	    ('tfidf', TfidfTransformer()),
-	    ('clf', MultiOutputClassifier(AdaBoostClassifier(base_estimator=DecisionTreeClassifier())))
-	])
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(AdaBoostClassifier(base_estimator=DecisionTreeClassifier())))
+    ])
 
-	# Define parameters for GridSearchCV
-	parameters = {
-		'tfidf__norm' : ['l1', 'l2'],
-    	'clf__estimator__base_estimator__criterion' : ['gini', 'entropy']
-	}
+    # Define parameters for GridSearchCV
+    parameters = {
+        'tfidf__norm' : ['l1', 'l2'],
+        'clf__estimator__base_estimator__criterion' : ['gini', 'entropy']
+    }
 
-	# Create GridSearchCV object
-	cv = GridSearchCV(pipeline, param_grid = parameters)
+    # Create GridSearchCV object
+    cv = GridSearchCV(pipeline, param_grid = parameters)
 
-	return cv
+    return cv
 
 
 
@@ -98,10 +100,10 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
-	'''Save model as pickle file'''
+    '''Save model as pickle file'''
 
     with open(model_filepath, 'wb') as model_pkl:
-    	pickle.dump(model, model_pkl)
+        pickle.dump(model, model_pkl)
 
 
 def main():
