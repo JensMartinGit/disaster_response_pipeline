@@ -1,6 +1,11 @@
-import sys
+import sys, re
 import pandas as pd
 from sqlalchemy import engine
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nlt.download('wordnet')
+from nltk.tokenize import word_tokenize
 
 
 def load_data(database_filepath):
@@ -13,6 +18,7 @@ def load_data(database_filepath):
 		y: pandas.DataFrame, classification into categories as one-hot encoding
 		category_names: list, category names
 	'''
+
     # Load data from sqlite database into DataFrame
     engine = create_engine(f'sqlite:///{database_filepath}')
     df = pd.read_sql('SELECT * FROM messages', engine)
@@ -26,7 +32,29 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
-    pass
+    '''Process text data into tokens
+
+    Replaces all urls by a placeholder, word tokenizes, lemmatizes, and normalizes the text, 
+    and returns a list of tokens.
+
+    Arguments:
+    	text: string, input text
+    Returns:
+    	token_list: list, tokenized words
+    '''
+
+    # Replace URLs
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    text = re.sub(url_regex, 'url_placeholder', text)
+
+    # Word tokenize text
+    token_list = word_tokenize(text)
+
+    # Lemmatize and normalize tokens
+    token_list = [WordNetLemmatizer().lemmatize(w).lower().strip() for w in token_list]
+
+    return token_list
+
 
 
 def build_model():
