@@ -41,7 +41,13 @@ def index():
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
+    genre_names = [x.capitalize() for x in list(genre_counts.index)]
+
+    message_counts = df.iloc[:,4:].sum()
+    message_names = [x.replace('_', ' ').capitalize() for x in list(df.iloc[:,4:].columns)]
+
+    request_genre_counts = df.groupby('genre').sum()['request']
+    offer_genre_counts = df.groupby('genre').sum()['offer']
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -61,6 +67,50 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+
+        {
+            'data': [
+                Bar(
+                    x=message_names,
+                    y=message_counts
+                )
+            ],
+
+            'layout': {
+                'title' : 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': 'Count'
+                },
+                'xaxis' : {
+                    'title' : 'Category'
+                }
+            }
+        },
+
+        {
+            'data': [
+                Bar(
+                    name='Requests',
+                    x=genre_names,
+                    y=request_genre_counts
+                ),
+                Bar(
+                    name='Offers',
+                    x=genre_names,
+                    y=offer_genre_counts
+                )
+            ],
+
+            'layout': {
+                'title' : 'Distribution of Requests and Offers by Genre',
+                'yaxis': {
+                    'title': 'Count'
+                },
+                'xaxis' : {
+                    'title' : 'Genre'
                 }
             }
         }
