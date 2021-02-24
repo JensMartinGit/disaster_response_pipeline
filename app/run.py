@@ -39,7 +39,6 @@ model = joblib.load("../models/classifier.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = [x.capitalize() for x in list(genre_counts.index)]
 
@@ -50,8 +49,9 @@ def index():
     offer_genre_counts = df.groupby('genre').sum()['offer']
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
+        
+        # Bar chart for Distribution of Message Genres
         {
             'data': [
                 Bar(
@@ -71,6 +71,7 @@ def index():
             }
         },
 
+        # Bar chart for Distribution of Message Categories
         {
             'data': [
                 Bar(
@@ -90,6 +91,7 @@ def index():
             }
         },
 
+        # Grouped bar chart for Distribution of Requests and Offers by Genre
         {
             'data': [
                 Bar(

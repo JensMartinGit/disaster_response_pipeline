@@ -69,7 +69,7 @@ def tokenize(text):
 
 def build_model():
     '''Create an ML pipeline using MultiOutputClassifier, AdaBoostClassifier with DecisionTreeClassifier
-    as base estimator, and GridSerach CV'''
+    as base estimator, and GridSearch CV'''
 
     # Build ML pipeline
     pipeline = Pipeline([
