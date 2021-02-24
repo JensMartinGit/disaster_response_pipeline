@@ -1,9 +1,8 @@
-import sys, re
+import sys, re, pickle
 import pandas as pd
 from sqlalchemy import create_engine
 import nltk
 nltk.download('punkt')
-nltk.download('stopwords')
 nltk.download('wordnet')
 from nltk.tokenize import word_tokenize
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -45,8 +44,8 @@ def load_data(database_filepath):
 def tokenize(text):
     '''Process text data into tokens
 
-    Replaces all urls by a placeholder, word tokenizes, lemmatizes, and normalizes the text, 
-    and returns a list of tokens.
+    Replace all urls by a placeholder, word tokenize, lemmatize, and normalize the text, 
+    and return a list of tokens.
 
     Arguments:
         text: string, input text
@@ -80,23 +79,22 @@ def build_model():
     ])
 
     # Define parameters for GridSearchCV
-    parameters = {
-        'tfidf__norm' : ['l1', 'l2'],
+    parameters = {        
         'clf__estimator__base_estimator__criterion' : ['gini', 'entropy']
     }
 
     # Create GridSearchCV object
-    cv = GridSearchCV(pipeline, param_grid = parameters)
+    cv = GridSearchCV(pipeline, param_grid = parameters, cv=2)
 
     return cv
 
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    '''Evaluate the ML model and prints out a classification report'''
+    '''Evaluate the ML model and print out a classification report'''
 
     Y_pred = model.predict(X_test)
-    print(classification_report(Y_test, Y_pred, target_names=category_names))
+    print(classification_report(Y_test, Y_pred, target_names=category_names, zero_division=0))
 
 
 def save_model(model, model_filepath):
