@@ -75,7 +75,8 @@ def build_model():
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(AdaBoostClassifier(base_estimator=DecisionTreeClassifier())))
+        ('clf', MultiOutputClassifier(AdaBoostClassifier(base_estimator=DecisionTreeClassifier(
+        	min_samples_split=4, max_features='sqrt', class_weight='balanced'))))
     ])
 
     # Define parameters for GridSearchCV
@@ -84,7 +85,7 @@ def build_model():
     }
 
     # Create GridSearchCV object
-    cv = GridSearchCV(pipeline, param_grid = parameters, cv=2)
+    cv = GridSearchCV(pipeline, param_grid=parameters, cv=3)
 
     return cv
 
