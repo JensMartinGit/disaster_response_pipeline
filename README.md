@@ -14,6 +14,8 @@ a) Web App
 
 The web app can be run with the script `run.py` in the *app* folder.
 
+![Web App Screenshot](/pics/disaster_response_app.png)
+
 b) Retraining the Model
 
 To update the model, a new message dataset can be uploaded to the SQLite database with the script `process_data.py` in the *data* folder. The script should be run with the paths to the messages (csv file), disaster categories (csv file) and the name of the database as additional arguments:
@@ -58,11 +60,15 @@ The requirements for this projects are listed in the `requirements.txt` file.
 
 The classification report below shows that the results of the model are far from perfect and leave lots of room for improvement:
 
+![Classification Report](/pics/model_evaluation.png)
+
 There are several possible explanations for this. The **tuning of the model's hyper parameters** was done with GridSearchCv, but due to hardware restrictions I implemented the model with a really small parameter grid in order to reduce the training time. For a real world application it would definitively be neccessary to run GridSearchCV with additional parameters, which probably would lead to better evaluation scores.
 
 Furthermore, one could ask if the **choice of algorithms** used here (MultiOutputClassifier combined with AdaBoostClassifier with DecisionTreeClassifier as base estimator) really was the best decision for this kind of classification task. However, other classification algorithms (which I tried with smaller data sets due to long training times) didn't perform significantly better.
 
 But the most important reason for the imperfect performance of the model becomes clear when looking at the distribution of the 36 different categories in the training data set:
+
+![Distribution of Categories](/pics/category_distribution.png)
 
 The visualization reveals how imbalanced the training data set really is, which inevitably leads to **imbalance bias** in the model. For one category, *Child alone*, there is not one single data record in the training data, and for several other categories there are little more than 100 data points, compared to almost 20,000 for the *related* category. And, as the classification report shows, the categories with the bad evaluation scores are usually the ones with very few data points, while for e.g. the *related* category both precision and recall scores are quite good.
 
